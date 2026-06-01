@@ -6,6 +6,48 @@ import { DriftScore } from "./DriftScore";
 import { MismatchCard } from "./MismatchCard";
 import { ShareActions } from "./ShareActions";
 
+const LANG_STYLES: Record<
+  string,
+  { dot: string; text: string; border: string; bg: string }
+> = {
+  typescript: {
+    dot: "bg-blue-400",
+    text: "text-blue-300",
+    border: "border-blue-500/20",
+    bg: "bg-blue-500/10",
+  },
+  javascript: {
+    dot: "bg-yellow-400",
+    text: "text-yellow-300",
+    border: "border-yellow-500/20",
+    bg: "bg-yellow-500/10",
+  },
+  python: {
+    dot: "bg-emerald-400",
+    text: "text-emerald-300",
+    border: "border-emerald-500/20",
+    bg: "bg-emerald-500/10",
+  },
+};
+
+function LanguageBadge({ language }: { language: string }) {
+  const style =
+    LANG_STYLES[language.toLowerCase()] ?? {
+      dot: "bg-zinc-400",
+      text: "text-zinc-300",
+      border: "border-zinc-500/20",
+      bg: "bg-zinc-500/10",
+    };
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium ${style.border} ${style.bg} ${style.text}`}
+    >
+      <span className={`size-1.5 rounded-full ${style.dot}`} />
+      {language}
+    </span>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
@@ -41,6 +83,9 @@ export function ReportView({ report }: { report: DriftReport }) {
                 <span className="text-sm text-zinc-500">
                   ★ {report.repo.stars.toLocaleString()}
                 </span>
+              )}
+              {report.repo.language && (
+                <LanguageBadge language={report.repo.language} />
               )}
             </div>
 

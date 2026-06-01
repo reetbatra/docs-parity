@@ -51,7 +51,7 @@ export default function Home() {
           <HowItWorks
             step="1"
             title="Read the real API"
-            body="We pull entry points, index/client/sdk files and .d.ts declarations from the repo and parse them with the TypeScript compiler — not regex."
+            body="We pull entry points and key source files, then parse them with the TypeScript compiler (TS/JS) or a signature extractor (Python) — not regex."
           />
           <HowItWorks
             step="2"

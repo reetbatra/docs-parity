@@ -159,6 +159,23 @@ export function DriftForm() {
           />
         </div>
 
+        {/* Supported languages */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-800/60 pt-3.5">
+          <span className="text-xs text-zinc-500">Supports:</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-300">
+            <span className="size-1.5 rounded-full bg-blue-400" />
+            TypeScript
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2.5 py-0.5 text-xs font-medium text-yellow-300">
+            <span className="size-1.5 rounded-full bg-yellow-400" />
+            JavaScript
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            Python
+          </span>
+        </div>
+
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="submit"
