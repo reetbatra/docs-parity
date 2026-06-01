@@ -28,22 +28,15 @@ export default function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Parity mark drawn with CSS (no glyph font needed in next/og). */}
           <div
             style={{
               width: 52,
               height: 52,
-              borderRadius: 12,
-              background: "#10b981",
-              color: "#022c22",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 32,
-              fontWeight: 700,
+              borderRadius: 9999,
+              backgroundImage: "linear-gradient(90deg, #10b981 50%, #064e3b 50%)",
             }}
-          >
-            ◑
-          </div>
+          />
           <div style={{ fontSize: 30, fontWeight: 700, color: "#a1a1aa" }}>
             docsParity
           </div>
