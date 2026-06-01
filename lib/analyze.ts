@@ -16,7 +16,7 @@ import { analysisJsonSchema, parseAnalysis, type Analysis } from "./schema";
  *  - Streaming the request so large/long analyses never hit an HTTP timeout.
  */
 
-export const DEFAULT_MODEL = "claude-opus-4-8";
+export const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
 const SYSTEM_PROMPT = `You are a senior staff engineer and technical writer performing a documentation audit.
 
