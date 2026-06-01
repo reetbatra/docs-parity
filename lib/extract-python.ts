@@ -59,6 +59,32 @@ function firstDocstring(lines: string[], afterLine: number): string | undefined 
   return undefined;
 }
 
+/**
+ * True if the def/class at `lineIdx` is preceded by a `# deprecated` comment
+ * or its first docstring line mentions deprecation.
+ */
+function isPythonDeprecated(
+  lines: string[],
+  lineIdx: number,
+  doc: string | undefined,
+): boolean {
+  if (lineIdx > 0) {
+    const prev = lines[lineIdx - 1].trim().toLowerCase();
+    if (prev.startsWith("# deprecated") || prev.startsWith("# @deprecated"))
+      return true;
+  }
+  if (doc) {
+    const lower = doc.toLowerCase();
+    if (
+      lower.startsWith("deprecated") ||
+      lower.includes(".. deprecated::") ||
+      lower.includes("deprecationwarning")
+    )
+      return true;
+  }
+  return false;
+}
+
 /** Public names: not single-underscore-prefixed. Dunders (__x__) are included. */
 function isPublicName(name: string): boolean {
   if (name.startsWith("__") && name.endsWith("__")) return true;
@@ -80,11 +106,13 @@ export function extractFromPythonFile(file: SourceFile): ApiSymbol[] {
       const name = fnMatch[2];
       if (isPublicName(name)) {
         const { sig, end } = collectSignature(lines, i);
+        const doc = firstDocstring(lines, end);
         symbols.push({
           kind: "function",
           name,
           signature: sig,
-          doc: firstDocstring(lines, end),
+          doc,
+          deprecated: isPythonDeprecated(lines, i, doc) || undefined,
           file: file.path,
           line: i + 1,
         });
@@ -129,6 +157,7 @@ export function extractFromPythonFile(file: SourceFile): ApiSymbol[] {
         name,
         signature: clamp(classSig + body),
         doc,
+        deprecated: isPythonDeprecated(lines, i, doc) || undefined,
         file: file.path,
         line: i + 1,
       });

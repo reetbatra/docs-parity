@@ -38,6 +38,7 @@ Rules:
 - Prefer high-signal findings a real developer would actually hit. It is better to report 4 solid mismatches than 10 speculative ones.
 - Severity: high = following the docs causes an error or broken behavior; medium = misleading or outdated but a developer could recover; low = cosmetic, naming, or minor omission.
 - Set confidence honestly (0-1). Lower it when you are inferring rather than certain.
+- If a symbol is marked \`@deprecated\` in the code (shown as \`/** @deprecated */\` in the API surface) but the docs do not warn users to stop using it or provide a migration path, that is a high-severity mismatch.
 - Return at most 10 mismatches, ordered by severity (high first). If the docs genuinely match the code well, return few or zero mismatches and say so in the summary.`;
 
 export interface AnalyzeArgs {

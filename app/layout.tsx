@@ -58,14 +58,22 @@ export default function RootLayout({
                 docs<span className="text-emerald-400">Parity</span>
               </span>
             </Link>
-            <a
-              href="https://github.com/reetbatra/docs-drift-detector"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-zinc-400 hover:text-zinc-200"
-            >
-              GitHub ↗
-            </a>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard"
+                className="text-sm text-zinc-400 hover:text-zinc-200"
+              >
+                Dashboard
+              </Link>
+              <a
+                href="https://github.com/reetbatra/docs-drift-detector"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-zinc-400 hover:text-zinc-200"
+              >
+                GitHub ↗
+              </a>
+            </div>
           </header>
 
           <main className="flex-1 py-8">{children}</main>

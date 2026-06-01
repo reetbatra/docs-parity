@@ -5,6 +5,7 @@ import { extractPythonSurface } from "./extract-python";
 import { getDocsContent, renderDocs } from "./firecrawl";
 import { analyzeDrift } from "./analyze";
 import { computeDriftScore, scoreLabel, sortMismatches } from "./drift";
+import { computeCoverageScore } from "./coverage";
 import { saveReport } from "./storage";
 import type { AnalyzeInput, DriftReport, ProgressCallback } from "./types";
 
@@ -65,6 +66,12 @@ export async function runAnalysis(
     detail: `${docs.pages.length} doc pages`,
   });
 
+  const { score: coverageScore, covered: coveredSymbols } =
+    computeCoverageScore(symbols, docsContent);
+  const deprecatedSymbols = symbols
+    .filter((s) => s.deprecated)
+    .map((s) => ({ name: s.name, kind: s.kind, file: s.file }));
+
   // 4. Analyze with Claude.
   onProgress({ step: "analyze", status: "start" });
   const { analysis, model } = await analyzeDrift({
@@ -99,6 +106,9 @@ export async function runAnalysis(
     files: files.map((f) => ({ path: f.path, url: f.url })),
     driftScore,
     scoreLabel: scoreLabel(driftScore),
+    coverageScore,
+    coveredSymbols,
+    deprecatedSymbols,
     summary: analysis.summary,
     mismatches,
     model,

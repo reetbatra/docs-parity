@@ -39,6 +39,16 @@ function isNonPublicMember(node: ts.ClassElement): boolean {
   return !!nonPublic || isHashPrivate;
 }
 
+function isDeprecatedJsDoc(node: ts.Node): boolean {
+  const jsDoc = (node as { jsDoc?: ts.JSDoc[] }).jsDoc;
+  if (!jsDoc) return false;
+  return jsDoc.some((doc) =>
+    doc.tags?.some(
+      (tag) => tag.tagName.text.toLowerCase() === "deprecated",
+    ),
+  );
+}
+
 function firstJsDocLine(node: ts.Node): string | undefined {
   const jsDoc = (node as { jsDoc?: ts.JSDoc[] }).jsDoc;
   if (!jsDoc || jsDoc.length === 0) return undefined;
@@ -176,6 +186,7 @@ export function extractFromFile(file: SourceFile): ApiSymbol[] {
       name,
       signature: clampSignature(signature),
       doc: firstJsDocLine(node),
+      deprecated: isDeprecatedJsDoc(node) || undefined,
       file: file.path,
       line: lineOf(node, sf),
     });

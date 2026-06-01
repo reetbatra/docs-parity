@@ -1,5 +1,6 @@
 import type { DriftReport } from "@/lib/types";
 import { countBySeverity } from "@/lib/drift";
+import { coverageLabel } from "@/lib/coverage";
 import { formatDate, formatDuration } from "@/lib/utils";
 import { DriftScore } from "./DriftScore";
 import { MismatchCard } from "./MismatchCard";
@@ -86,6 +87,51 @@ export function ReportView({ report }: { report: DriftReport }) {
           <Stat label="Doc pages" value={report.stats.docPages} />
           <Stat label="Analyzed in" value={formatDuration(report.durationMs)} />
         </div>
+
+        {/* Coverage score */}
+        {report.coverageScore != null && (
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <div className="text-2xl font-bold tabular-nums text-zinc-100">
+              {report.coverageScore}%
+            </div>
+            <div>
+              <div className="text-xs font-medium text-zinc-300">
+                API coverage —{" "}
+                <span className="text-zinc-400">
+                  {coverageLabel(report.coverageScore)}
+                </span>
+              </div>
+              <div className="mt-0.5 text-xs text-zinc-500">
+                {report.coveredSymbols ?? 0} of {report.stats.symbolsExtracted}{" "}
+                exported symbols mentioned in docs
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Deprecated symbols */}
+        {(report.deprecatedSymbols ?? []).length > 0 && (
+          <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/[0.05] px-4 py-3">
+            <div className="text-xs font-medium text-amber-300">
+              {report.deprecatedSymbols.length} deprecated API
+              {report.deprecatedSymbols.length === 1 ? "" : "s"} detected in
+              code
+            </div>
+            <ul className="mt-2 space-y-0.5">
+              {report.deprecatedSymbols.map((s) => (
+                <li
+                  key={`${s.file}-${s.name}`}
+                  className="flex items-center gap-2 text-xs text-zinc-400"
+                >
+                  <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-amber-300">
+                    {s.name}
+                  </span>
+                  <span className="truncate text-zinc-500">{s.file}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <details className="mt-4 text-xs text-zinc-500">
           <summary className="cursor-pointer select-none hover:text-zinc-300">

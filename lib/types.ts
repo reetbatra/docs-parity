@@ -38,6 +38,7 @@ export interface ApiSymbol {
   name: string;
   signature: string;
   doc?: string;
+  deprecated?: boolean;
   file: string;
   line: number;
 }
@@ -53,6 +54,13 @@ export interface DocPage {
 export interface AnalyzeInput {
   repoUrl: string;
   docsUrl: string;
+}
+
+/** A lightweight deprecated-symbol entry stored in the report. */
+export interface DeprecatedSymbol {
+  name: string;
+  kind: string;
+  file: string;
 }
 
 /** The full, shareable report. This is what we persist and render. */
@@ -74,6 +82,9 @@ export interface DriftReport {
   files: { path: string; url: string }[];
   driftScore: number;
   scoreLabel: string;
+  coverageScore: number;
+  coveredSymbols: number;
+  deprecatedSymbols: DeprecatedSymbol[];
   summary: string;
   mismatches: Mismatch[];
   model: string;
