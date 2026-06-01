@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { getDocsContent, renderDocs } from "@/lib/firecrawl";
+import { getDocsContent, renderDocs } from "../lib/firecrawl";
 
 beforeAll(() => {
   process.env.FIRECRAWL_API_KEY = "fc-test";

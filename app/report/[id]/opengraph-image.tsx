@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Documentation Drift Detector";
+export const alt = "docsParity";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -39,12 +39,13 @@ export default function Image() {
               alignItems: "center",
               justifyContent: "center",
               fontSize: 32,
+              fontWeight: 700,
             }}
           >
-            ⤳
+            ◑
           </div>
           <div style={{ fontSize: 30, fontWeight: 700, color: "#a1a1aa" }}>
-            Documentation Drift Detector
+            docsParity
           </div>
         </div>
 
@@ -54,11 +55,11 @@ export default function Image() {
             fontWeight: 800,
             lineHeight: 1.1,
             marginTop: 40,
-            maxWidth: 900,
+            maxWidth: 950,
           }}
         >
-          When your docs lie to your developers,
-          <span style={{ color: "#34d399" }}> catch it in 30 seconds.</span>
+          Your docs drifted from your code.
+          <span style={{ color: "#34d399" }}> docsParity finds where.</span>
         </div>
 
         <div style={{ fontSize: 28, color: "#a1a1aa", marginTop: 28 }}>

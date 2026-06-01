@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import Anthropic from "@anthropic-ai/sdk";
-import { analyzeDrift } from "@/lib/analyze";
+import { analyzeDrift } from "../lib/analyze";
 
 /**
  * A minimal stub of the Anthropic client: `messages.stream(...)` returns an

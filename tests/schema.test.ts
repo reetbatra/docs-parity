@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseAnalysis } from "@/lib/schema";
+import { parseAnalysis } from "../lib/schema";
 
 describe("parseAnalysis", () => {
   it("parses a well-formed payload", () => {

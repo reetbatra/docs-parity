@@ -3,8 +3,8 @@ import {
   extractApiSurface,
   extractFromFile,
   renderApiSurface,
-} from "@/lib/extract";
-import type { SourceFile } from "@/lib/types";
+} from "../lib/extract";
+import type { SourceFile } from "../lib/types";
 
 const SAMPLE = `
 export interface Options {

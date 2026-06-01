@@ -5,8 +5,8 @@ import {
   scoreTone,
   sortMismatches,
   countBySeverity,
-} from "@/lib/drift";
-import type { Mismatch } from "@/lib/schema";
+} from "../lib/drift";
+import type { Mismatch } from "../lib/schema";
 
 function m(severity: Mismatch["severity"], confidence = 1): Mismatch {
   return {

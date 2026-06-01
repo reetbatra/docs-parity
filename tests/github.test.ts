@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseRepoUrl, fetchRepoApiSurface } from "@/lib/github";
+import { parseRepoUrl, fetchRepoApiSurface } from "../lib/github";
 
 describe("parseRepoUrl", () => {
   it("parses a standard https URL", () => {

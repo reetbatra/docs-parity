@@ -3,8 +3,8 @@ import {
   buildIssueUrl,
   mismatchToMarkdown,
   reportToIssueMarkdown,
-} from "@/lib/github-issue";
-import type { DriftReport, Mismatch } from "@/lib/types";
+} from "../lib/github-issue";
+import type { DriftReport, Mismatch } from "../lib/types";
 
 const mismatch: Mismatch = {
   title: "createClient signature changed",
