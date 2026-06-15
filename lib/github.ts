@@ -23,6 +23,8 @@ const PYTHON_SOURCE_EXTENSIONS = [".py", ".pyi"];
 
 const RUST_SOURCE_EXTENSIONS = [".rs"];
 
+const GO_SOURCE_EXTENSIONS = [".go"];
+
 const EXCLUDE_PATTERNS = [
   /(^|\/)node_modules\//,
   /(^|\/)dist\//,
@@ -231,6 +233,38 @@ function scoreRustFile(path: string): number {
   return score;
 }
 
+const GO_EXCLUDE_PATTERNS = [
+  /_test\.go$/,
+  /(^|\/)vendor\//,
+  /(^|\/)testdata\//,
+  /(^|\/)examples?\//,
+];
+
+function isGoSourceFile(path: string): boolean {
+  if (GO_EXCLUDE_PATTERNS.some((re) => re.test(path))) return false;
+  return GO_SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
+
+function scoreGoFile(path: string): number {
+  let score = 0;
+  const name = basename(path).toLowerCase();
+  const depth = path.split("/").length;
+
+  // Conventional public-surface filenames for Go libraries.
+  if (/^(api|client|sdk|types|errors|options|config|handler)\.go$/.test(name)) score += 30;
+  if (name === "doc.go") score += 20;
+
+  // Files in internal/ are module-private — deprioritise.
+  if (/(^|\/)internal\//.test(path)) score -= 15;
+  // cmd/ packages are executables, not public API.
+  if (/(^|\/)cmd\//.test(path)) score -= 10;
+
+  if (/(^|\/)src\//.test(path) || depth <= 2) score += 10;
+  score -= depth * 2;
+
+  return score;
+}
+
 function scorePythonFile(path: string): number {
   let score = 0;
   const name = basename(path).toLowerCase();
@@ -310,6 +344,7 @@ export async function fetchRepoApiSurface(
   const detectedLang = ((meta.language as string) ?? "").toLowerCase();
   const isPython = detectedLang === "python";
   const isRust = detectedLang === "rust";
+  const isGo = detectedLang === "go";
 
   // 2. Recursive tree of the branch.
   const treeRes = await fetchImpl(
@@ -328,7 +363,7 @@ export async function fetchRepoApiSurface(
 
   // 3. Optionally read package.json to find declared entry points (TS/JS only).
   let entryPoints = new Set<string>();
-  if (!isPython && !isRust && tree.some((t) => t.path === "package.json")) {
+  if (!isPython && !isRust && !isGo && tree.some((t) => t.path === "package.json")) {
     try {
       const pkgRes = await fetchImpl(rawUrl(owner, repo, branch, "package.json"));
       if (pkgRes.ok) {
@@ -349,7 +384,9 @@ export async function fetchRepoApiSurface(
           ? isPythonSourceFile(t.path)
           : isRust
             ? isRustSourceFile(t.path)
-            : isSourceFile(t.path)),
+            : isGo
+              ? isGoSourceFile(t.path)
+              : isSourceFile(t.path)),
     )
     .filter((t) => (t.size ?? 0) <= maxFileBytes)
     .map((t) => ({
@@ -358,7 +395,9 @@ export async function fetchRepoApiSurface(
         ? scorePythonFile(t.path)
         : isRust
           ? scoreRustFile(t.path)
-          : scoreFile(t.path, entryPoints),
+          : isGo
+            ? scoreGoFile(t.path)
+            : scoreFile(t.path, entryPoints),
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, maxFiles);
@@ -369,7 +408,9 @@ export async function fetchRepoApiSurface(
         ? `No Python source files found in ${owner}/${repo}.`
         : isRust
           ? `No Rust source files found in ${owner}/${repo}.`
-          : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
+          : isGo
+            ? `No Go source files found in ${owner}/${repo}.`
+            : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
     );
   }
 

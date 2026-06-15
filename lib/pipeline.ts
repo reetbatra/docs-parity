@@ -3,6 +3,7 @@ import { fetchRepoApiSurface } from "./github";
 import { extractApiSurface, renderApiSurface } from "./extract";
 import { extractPythonSurface } from "./extract-python";
 import { extractRustSurface } from "./extract-rust";
+import { extractGoSurface } from "./extract-go";
 import { getDocsContent, renderDocs } from "./firecrawl";
 import { analyzeDrift } from "./analyze";
 import { computeDriftScore, scoreLabel, sortMismatches } from "./drift";
@@ -50,7 +51,9 @@ export async function runAnalysis(
       ? extractPythonSurface(files)
       : lang === "rust"
         ? extractRustSurface(files)
-        : extractApiSurface(files);
+        : lang === "go"
+          ? extractGoSurface(files)
+          : extractApiSurface(files);
   const apiSurface = renderApiSurface(symbols, files);
   onProgress({
     step: "extract",

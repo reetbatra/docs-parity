@@ -34,6 +34,12 @@ const LANG_STYLES: Record<
     border: "border-orange-500/20",
     bg: "bg-orange-500/10",
   },
+  go: {
+    dot: "bg-sky-400",
+    text: "text-sky-300",
+    border: "border-sky-500/20",
+    bg: "bg-sky-500/10",
+  },
 };
 
 function LanguageBadge({ language }: { language: string }) {
