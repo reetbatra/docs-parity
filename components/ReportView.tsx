@@ -28,6 +28,12 @@ const LANG_STYLES: Record<
     border: "border-emerald-500/20",
     bg: "bg-emerald-500/10",
   },
+  rust: {
+    dot: "bg-orange-400",
+    text: "text-orange-300",
+    border: "border-orange-500/20",
+    bg: "bg-orange-500/10",
+  },
 };
 
 function LanguageBadge({ language }: { language: string }) {

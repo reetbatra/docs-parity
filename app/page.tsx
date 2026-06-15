@@ -62,7 +62,7 @@ export default async function Home({
           <HowItWorks
             step="1"
             title="Read the real API"
-            body="We pull entry points and key source files, then parse them with the TypeScript compiler (TS/JS) or a signature extractor (Python) — not regex."
+            body="We pull entry points and key source files, then parse them with the TypeScript compiler (TS/JS), a signature extractor (Python), or a pub-item scanner (Rust) — not guesswork."
           />
           <HowItWorks
             step="2"

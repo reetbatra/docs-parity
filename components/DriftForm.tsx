@@ -191,6 +191,10 @@ export function DriftForm({
             <span className="size-1.5 rounded-full bg-emerald-400" />
             Python
           </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-xs font-medium text-orange-300">
+            <span className="size-1.5 rounded-full bg-orange-400" />
+            Rust
+          </span>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

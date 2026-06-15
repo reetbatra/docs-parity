@@ -21,6 +21,8 @@ const SOURCE_EXTENSIONS = [
 
 const PYTHON_SOURCE_EXTENSIONS = [".py", ".pyi"];
 
+const RUST_SOURCE_EXTENSIONS = [".rs"];
+
 const EXCLUDE_PATTERNS = [
   /(^|\/)node_modules\//,
   /(^|\/)dist\//,
@@ -194,6 +196,41 @@ function isPythonSourceFile(path: string): boolean {
   return PYTHON_SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
 }
 
+const RUST_EXCLUDE_PATTERNS = [
+  /(^|\/)target\//,
+  /(^|\/)tests?\//,
+  /(^|\/)benches?\//,
+  /(^|\/)examples?\//,
+  /\/test_[^/]+\.rs$/,
+  /\/[^/]+_test\.rs$/,
+  /^build\.rs$/,
+  /(^|\/)build\.rs$/,
+];
+
+function isRustSourceFile(path: string): boolean {
+  if (RUST_EXCLUDE_PATTERNS.some((re) => re.test(path))) return false;
+  return RUST_SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
+
+function scoreRustFile(path: string): number {
+  let score = 0;
+  const name = basename(path).toLowerCase();
+  const depth = path.split("/").length;
+
+  // lib.rs is the crate root — strongest signal.
+  if (name === "lib.rs") score += 40;
+  if (name === "mod.rs") score += 20;
+  if (name === "main.rs") score += 15;
+
+  // Conventional public-surface filenames.
+  if (/^(api|client|sdk|core|types|traits|error)\.rs$/.test(name)) score += 25;
+
+  if (/(^|\/)src\//.test(path)) score += 10;
+  score -= depth * 2;
+
+  return score;
+}
+
 function scorePythonFile(path: string): number {
   let score = 0;
   const name = basename(path).toLowerCase();
@@ -270,8 +307,9 @@ export async function fetchRepoApiSurface(
     language: (meta.language as string) ?? null,
   };
 
-  const isPython =
-    ((meta.language as string) ?? "").toLowerCase() === "python";
+  const detectedLang = ((meta.language as string) ?? "").toLowerCase();
+  const isPython = detectedLang === "python";
+  const isRust = detectedLang === "rust";
 
   // 2. Recursive tree of the branch.
   const treeRes = await fetchImpl(
@@ -290,7 +328,7 @@ export async function fetchRepoApiSurface(
 
   // 3. Optionally read package.json to find declared entry points (TS/JS only).
   let entryPoints = new Set<string>();
-  if (!isPython && tree.some((t) => t.path === "package.json")) {
+  if (!isPython && !isRust && tree.some((t) => t.path === "package.json")) {
     try {
       const pkgRes = await fetchImpl(rawUrl(owner, repo, branch, "package.json"));
       if (pkgRes.ok) {
@@ -307,14 +345,20 @@ export async function fetchRepoApiSurface(
     .filter(
       (t) =>
         t.type === "blob" &&
-        (isPython ? isPythonSourceFile(t.path) : isSourceFile(t.path)),
+        (isPython
+          ? isPythonSourceFile(t.path)
+          : isRust
+            ? isRustSourceFile(t.path)
+            : isSourceFile(t.path)),
     )
     .filter((t) => (t.size ?? 0) <= maxFileBytes)
     .map((t) => ({
       ...t,
       score: isPython
         ? scorePythonFile(t.path)
-        : scoreFile(t.path, entryPoints),
+        : isRust
+          ? scoreRustFile(t.path)
+          : scoreFile(t.path, entryPoints),
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, maxFiles);
@@ -323,7 +367,9 @@ export async function fetchRepoApiSurface(
     throw new Error(
       isPython
         ? `No Python source files found in ${owner}/${repo}.`
-        : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
+        : isRust
+          ? `No Rust source files found in ${owner}/${repo}.`
+          : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
     );
   }
 

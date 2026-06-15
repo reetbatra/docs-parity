@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { fetchRepoApiSurface } from "./github";
 import { extractApiSurface, renderApiSurface } from "./extract";
 import { extractPythonSurface } from "./extract-python";
+import { extractRustSurface } from "./extract-rust";
 import { getDocsContent, renderDocs } from "./firecrawl";
 import { analyzeDrift } from "./analyze";
 import { computeDriftScore, scoreLabel, sortMismatches } from "./drift";
@@ -43,10 +44,13 @@ export async function runAnalysis(
 
   // 2. Extract the structured API surface.
   onProgress({ step: "extract", status: "start" });
-  const isPython = repo.language?.toLowerCase() === "python";
-  const symbols = isPython
-    ? extractPythonSurface(files)
-    : extractApiSurface(files);
+  const lang = repo.language?.toLowerCase();
+  const symbols =
+    lang === "python"
+      ? extractPythonSurface(files)
+      : lang === "rust"
+        ? extractRustSurface(files)
+        : extractApiSurface(files);
   const apiSurface = renderApiSurface(symbols, files);
   onProgress({
     step: "extract",
