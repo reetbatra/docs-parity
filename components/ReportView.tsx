@@ -159,7 +159,7 @@ export function ReportView({ report }: { report: DriftReport }) {
             </div>
             <div>
               <div className="text-xs font-medium text-zinc-300">
-                API coverage —{" "}
+                API coverage:{" "}
                 <span className="text-zinc-400">
                   {coverageLabel(report.coverageScore)}
                 </span>
@@ -222,7 +222,7 @@ export function ReportView({ report }: { report: DriftReport }) {
       {report.mismatches.length === 0 ? (
         <section className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-8 text-center">
           <p className="text-lg font-semibold text-emerald-300">
-            Full parity — no significant drift found 🎉
+            Full parity. No significant drift found. 🎉
           </p>
           <p className="mt-1 text-sm text-zinc-400">
             The documentation matches the code&apos;s public API surface well.

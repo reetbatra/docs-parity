@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "docsParity — find where your docs and code drift apart";
+const TITLE = "docsParity: find where your docs and code drift apart";
 const DESCRIPTION =
-  "Point docsParity at a GitHub repo and a docs site. It finds where the code and the docs no longer match — and tells you exactly what to fix.";
+  "Point docsParity at a GitHub repo and a docs site. It finds where the code and the docs no longer match, and tells you exactly what to fix.";
 
 export const metadata: Metadata = {
   title: TITLE,

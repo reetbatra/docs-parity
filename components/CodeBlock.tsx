@@ -35,7 +35,7 @@ export function CodeBlock({
       </div>
       <pre className="thin-scroll overflow-x-auto px-3 py-2.5 text-[13px] leading-relaxed text-zinc-200">
         <code className="font-mono whitespace-pre-wrap break-words">
-          {children || "—"}
+          {children || "(none)"}
         </code>
       </pre>
     </div>

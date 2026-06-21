@@ -51,7 +51,7 @@ export function ProgressSteps({
               {STEP_LABELS[step]}
             </span>
             {details[step] && (
-              <span className="text-xs text-zinc-500">— {details[step]}</span>
+              <span className="text-xs text-zinc-500">· {details[step]}</span>
             )}
           </li>
         );

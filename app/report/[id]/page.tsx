@@ -17,7 +17,7 @@ export async function generateMetadata({
   if (!report) {
     return { title: "Report not found · docsParity" };
   }
-  const title = `${report.repo.fullName} — drift ${report.driftScore}/10`;
+  const title = `${report.repo.fullName}: drift score ${report.driftScore}/10`;
   const description =
     report.summary ||
     `${report.mismatches.length} documentation mismatches found between the code and the docs.`;
