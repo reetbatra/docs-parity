@@ -34,4 +34,22 @@ export const EXAMPLE_REPOS: ExampleRepo[] = [
     repoUrl: "https://github.com/colinhacks/zod",
     docsUrl: "https://zod.dev/",
   },
+  {
+    name: "Gin",
+    description: "Fast Go HTTP web framework",
+    repoUrl: "https://github.com/gin-gonic/gin",
+    docsUrl: "https://gin-gonic.com/en/docs/",
+  },
+  {
+    name: "Serde",
+    description: "Rust serialization framework",
+    repoUrl: "https://github.com/serde-rs/serde",
+    docsUrl: "https://serde.rs/",
+  },
+  {
+    name: "Retrofit",
+    description: "Type-safe Java HTTP client",
+    repoUrl: "https://github.com/square/retrofit",
+    docsUrl: "https://square.github.io/retrofit/",
+  },
 ];

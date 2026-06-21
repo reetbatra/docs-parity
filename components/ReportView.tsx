@@ -40,6 +40,12 @@ const LANG_STYLES: Record<
     border: "border-sky-500/20",
     bg: "bg-sky-500/10",
   },
+  java: {
+    dot: "bg-red-400",
+    text: "text-red-300",
+    border: "border-red-500/20",
+    bg: "bg-red-500/10",
+  },
 };
 
 function LanguageBadge({ language }: { language: string }) {

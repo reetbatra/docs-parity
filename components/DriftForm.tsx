@@ -199,6 +199,10 @@ export function DriftForm({
             <span className="size-1.5 rounded-full bg-sky-400" />
             Go
           </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-300">
+            <span className="size-1.5 rounded-full bg-red-400" />
+            Java
+          </span>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -25,6 +25,8 @@ const RUST_SOURCE_EXTENSIONS = [".rs"];
 
 const GO_SOURCE_EXTENSIONS = [".go"];
 
+const JAVA_SOURCE_EXTENSIONS = [".java"];
+
 const EXCLUDE_PATTERNS = [
   /(^|\/)node_modules\//,
   /(^|\/)dist\//,
@@ -240,9 +242,51 @@ const GO_EXCLUDE_PATTERNS = [
   /(^|\/)examples?\//,
 ];
 
+const JAVA_EXCLUDE_PATTERNS = [
+  /(^|\/)target\//,
+  /(^|\/)build\//,
+  /(^|\/)out\//,
+  /(^|\/)\.gradle\//,
+  /(^|\/)test\//,
+  /(^|\/)androidTest\//,
+  /Test[^/]*\.java$/,
+  /[^/]*Tests?\.java$/,
+  /[^/]*IT\.java$/,
+];
+
 function isGoSourceFile(path: string): boolean {
   if (GO_EXCLUDE_PATTERNS.some((re) => re.test(path))) return false;
   return GO_SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
+
+function isJavaSourceFile(path: string): boolean {
+  if (JAVA_EXCLUDE_PATTERNS.some((re) => re.test(path))) return false;
+  return JAVA_SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
+
+function scoreJavaFile(path: string): number {
+  let score = 0;
+  const name = basename(path).toLowerCase();
+  const depth = path.split("/").length;
+
+  // Conventional public-surface filenames.
+  if (
+    /^(client|api|manager|service|factory|builder|config|utils?|helper|core|sdk)\.(java)$/.test(
+      name,
+    )
+  )
+    score += 20;
+
+  // Maven/Gradle standard source layout.
+  if (/(^|\/)src\/main\/java\//.test(path)) score += 15;
+
+  // Deprioritise internal packages.
+  if (/(^|\/)internal\//.test(path)) score -= 10;
+
+  // Java files are deeply nested (com/example/lib/...) so be generous with depth.
+  score -= Math.max(0, depth - 6) * 2;
+
+  return score;
 }
 
 function scoreGoFile(path: string): number {
@@ -345,6 +389,7 @@ export async function fetchRepoApiSurface(
   const isPython = detectedLang === "python";
   const isRust = detectedLang === "rust";
   const isGo = detectedLang === "go";
+  const isJava = detectedLang === "java";
 
   // 2. Recursive tree of the branch.
   const treeRes = await fetchImpl(
@@ -363,7 +408,7 @@ export async function fetchRepoApiSurface(
 
   // 3. Optionally read package.json to find declared entry points (TS/JS only).
   let entryPoints = new Set<string>();
-  if (!isPython && !isRust && !isGo && tree.some((t) => t.path === "package.json")) {
+  if (!isPython && !isRust && !isGo && !isJava && tree.some((t) => t.path === "package.json")) {
     try {
       const pkgRes = await fetchImpl(rawUrl(owner, repo, branch, "package.json"));
       if (pkgRes.ok) {
@@ -386,7 +431,9 @@ export async function fetchRepoApiSurface(
             ? isRustSourceFile(t.path)
             : isGo
               ? isGoSourceFile(t.path)
-              : isSourceFile(t.path)),
+              : isJava
+                ? isJavaSourceFile(t.path)
+                : isSourceFile(t.path)),
     )
     .filter((t) => (t.size ?? 0) <= maxFileBytes)
     .map((t) => ({
@@ -397,7 +444,9 @@ export async function fetchRepoApiSurface(
           ? scoreRustFile(t.path)
           : isGo
             ? scoreGoFile(t.path)
-            : scoreFile(t.path, entryPoints),
+            : isJava
+              ? scoreJavaFile(t.path)
+              : scoreFile(t.path, entryPoints),
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, maxFiles);
@@ -410,7 +459,9 @@ export async function fetchRepoApiSurface(
           ? `No Rust source files found in ${owner}/${repo}.`
           : isGo
             ? `No Go source files found in ${owner}/${repo}.`
-            : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
+            : isJava
+              ? `No Java source files found in ${owner}/${repo}.`
+              : `No TypeScript/JavaScript source files found in ${owner}/${repo}. docsParity targets TS/JS libraries.`,
     );
   }
 
