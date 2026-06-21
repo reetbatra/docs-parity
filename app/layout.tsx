@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -77,6 +78,7 @@ export default function RootLayout({
           </header>
 
           <main className="flex-1 py-8">{children}</main>
+          <Analytics />
 
           <footer className="border-t border-zinc-900 pt-5 text-center text-xs text-zinc-600">
             docsParity · code vs docs, diffed by Claude in ~30 seconds.

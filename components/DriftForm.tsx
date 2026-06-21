@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import {
   PIPELINE_STEPS,
   type DriftReport,
@@ -43,19 +44,21 @@ export function DriftForm({
   useEffect(() => {
     if (autoRun && initialRepoUrl && initialDocsUrl && !didAutoRun.current) {
       didAutoRun.current = true;
-      run(initialRepoUrl, initialDocsUrl);
+      run(initialRepoUrl, initialDocsUrl, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const running = status === "running";
 
-  async function run(repo: string, docs: string) {
+  async function run(repo: string, docs: string, isExample = false) {
     setStatus("running");
     setStates(initialStates());
     setDetails({});
     setReport(null);
     setError(null);
+
+    track("analyze_started", { repoUrl: repo, docsUrl: docs, isExample });
 
     setTimeout(
       () => resultsRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -89,6 +92,15 @@ export function DriftForm({
         } else if (event.type === "report") {
           setReport(event.report);
           setStatus("done");
+          track("analyze_complete", {
+            repoUrl: event.report.input.repoUrl,
+            language: event.report.repo.language ?? "unknown",
+            driftScore: event.report.driftScore,
+            scoreLabel: event.report.scoreLabel,
+            mismatchCount: event.report.mismatches.length,
+            coverageScore: event.report.coverageScore,
+            durationMs: event.report.durationMs,
+          });
           if (typeof window !== "undefined") {
             window.history.replaceState(
               null,
@@ -103,6 +115,7 @@ export function DriftForm({
         } else if (event.type === "error") {
           setError(event.message);
           setStatus("error");
+          track("analyze_error", { repoUrl: repo, docsUrl: docs, message: event.message });
         }
       };
 
@@ -134,8 +147,10 @@ export function DriftForm({
 
       setStatus((s) => (s === "running" ? "done" : s));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      const message = e instanceof Error ? e.message : "Something went wrong.";
+      setError(message);
       setStatus("error");
+      track("analyze_error", { repoUrl: repo, docsUrl: docs, message });
     }
   }
 
@@ -145,10 +160,11 @@ export function DriftForm({
     run(repoUrl, docsUrl);
   }
 
-  function runExample(repo: string, docs: string) {
+  function runExample(name: string, repo: string, docs: string) {
     setRepoUrl(repo);
     setDocsUrl(docs);
-    if (!running) run(repo, docs);
+    track("example_clicked", { name, repoUrl: repo });
+    if (!running) run(repo, docs, true);
   }
 
   return (
@@ -228,7 +244,7 @@ export function DriftForm({
                 key={ex.name}
                 type="button"
                 disabled={running}
-                onClick={() => runExample(ex.repoUrl, ex.docsUrl)}
+                onClick={() => runExample(ex.name, ex.repoUrl, ex.docsUrl)}
                 title={ex.description}
                 className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-medium text-zinc-300 transition-colors hover:border-emerald-500/50 hover:text-emerald-300 disabled:opacity-40"
               >
