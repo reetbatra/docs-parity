@@ -13,7 +13,7 @@ import { saveReport } from "./storage";
 import type { AnalyzeInput, DriftReport, ProgressCallback } from "./types";
 
 /**
- * The end-to-end pipeline: GitHub -> AST extraction -> Firecrawl -> Claude ->
+ * The end-to-end pipeline: GitHub -> AST extraction -> Firecrawl -> DeepSeek ->
  * score -> persist. Emits progress via the callback so the UI can show live
  * step-by-step status.
  */
@@ -82,7 +82,7 @@ export async function runAnalysis(
     .filter((s) => s.deprecated)
     .map((s) => ({ name: s.name, kind: s.kind, file: s.file }));
 
-  // 4. Analyze with Claude.
+  // 4. Analyze with the LLM.
   onProgress({ step: "analyze", status: "start" });
   const { analysis, model } = await analyzeDrift({
     repoFullName: repo.fullName,

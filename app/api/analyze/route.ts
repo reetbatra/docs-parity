@@ -1,7 +1,7 @@
 import { runAnalysis } from "@/lib/pipeline";
 import type { AnalyzeInput, StreamEvent } from "@/lib/types";
 
-// The pipeline does real network work (GitHub + Firecrawl + Claude) and uses
+// The pipeline does real network work (GitHub + Firecrawl + DeepSeek) and uses
 // the TypeScript compiler, so it must run on the Node.js runtime, not edge.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

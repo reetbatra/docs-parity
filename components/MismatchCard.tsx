@@ -72,7 +72,7 @@ export function MismatchCard({
         </div>
       )}
 
-      <footer className="mt-4 flex flex-wrap items-center gap-2">
+      <footer className="mt-4 flex flex-wrap items-center gap-2 print:hidden">
         <a
           href={buildIssueUrl(report, mismatch)}
           target="_blank"

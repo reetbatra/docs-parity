@@ -337,7 +337,7 @@ export interface FetchSurfaceOptions {
  * Fetch the public API surface of a repo: repo metadata + the most relevant
  * top-level source files (entry points, index/api/client/sdk files, .d.ts
  * declarations). We deliberately do NOT fetch every file — that blows GitHub
- * rate limits and Claude's context. 90% of what docs reference lives in the
+ * rate limits and the model's context. 90% of what docs reference lives in the
  * exported API surface.
  */
 export async function fetchRepoApiSurface(

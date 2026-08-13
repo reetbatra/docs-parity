@@ -56,7 +56,7 @@ export default function Image() {
         </div>
 
         <div style={{ fontSize: 28, color: "#a1a1aa", marginTop: 28 }}>
-          Code vs docs, diffed by Claude. Drift score plus the exact fix.
+          Code vs docs, diffed by AI. Drift score plus the exact fix.
         </div>
       </div>
     ),

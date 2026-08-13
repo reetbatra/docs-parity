@@ -41,7 +41,7 @@ export default async function ReportPage({
   return (
     <div className="space-y-6">
       <ReportView report={report} />
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3 print:hidden">
         <Link
           href={`/?repoUrl=${encodeURIComponent(report.input.repoUrl)}&docsUrl=${encodeURIComponent(report.input.docsUrl)}`}
           className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-400"

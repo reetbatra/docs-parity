@@ -49,3 +49,22 @@ body {
 .animate-spin-slow {
   animation: spin 1s linear infinite;
 }
+
+/* Printable report: flatten the dark theme to plain black-on-white so
+   "Save as PDF" is legible with or without background graphics enabled. */
+@media print {
+  html,
+  body {
+    background: white !important;
+    background-image: none !important;
+  }
+  * {
+    color: black !important;
+    background-color: white !important;
+    border-color: #d4d4d8 !important;
+    box-shadow: none !important;
+  }
+  a {
+    text-decoration: underline;
+  }
+}

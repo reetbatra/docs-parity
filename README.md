@@ -4,7 +4,7 @@
 
 **Find where your docs and code drift apart — and exactly what to fix.**
 
-Give it a GitHub repo URL and a docs URL. docsParity pulls the repo's real exported API surface, crawls the documentation, and uses Claude to diff them — returning the top mismatches ranked by severity, each with the code snippet, the conflicting docs snippet, what changed, and the suggested fix, plus an overall **drift score out of 10**.
+Give it a GitHub repo URL and a docs URL. docsParity pulls the repo's real exported API surface, crawls the documentation, and uses AI to diff them — returning the top mismatches ranked by severity, each with the code snippet, the conflicting docs snippet, what changed, and the suggested fix, plus an overall **drift score out of 10**.
 
 </div>
 
@@ -23,7 +23,7 @@ A developer clones a popular SDK, follows the docs, and hits an error because a 
 - **Two inputs, one report.** A GitHub repo URL and a docs URL. That's it.
 - **Real API extraction.** Uses the **TypeScript compiler AST** to pull exported functions, classes (with public method signatures), interfaces, types, enums, consts, and re-exports — not brittle regex. Prioritizes entry points (`index`/`api`/`client`/`sdk`, `package.json` `exports`, and `.d.ts` declarations).
 - **Live crawl.** Firecrawl scrapes the docs site to clean Markdown (primary page guaranteed + a small breadth crawl, credit-conscious).
-- **Structured Claude analysis.** `claude-opus-4-8` by default, with adaptive thinking, `effort: high`, and JSON-schema **structured outputs**. The large code/docs blocks use **prompt caching**, so re-running the same repo+docs (the "famous repo" buttons) is cheap.
+- **AI-powered analysis.** `deepseek-chat` by default, with JSON-mode **structured outputs**. DeepSeek caches repeated prompt prefixes server-side, so re-running the same repo+docs (the "famous repo" buttons) is cheap.
 - **Deterministic drift score.** Computed from severity-weighted, confidence-scaled findings — reproducible and explainable, not a number the model made up.
 - **Live progress.** The analysis streams step-by-step status (fetch code → extract → crawl → analyze) over NDJSON.
 - **Run on a famous repo.** One-click examples (Vercel AI SDK, Prisma, Hono, Zod) so anyone can try it instantly.
@@ -74,11 +74,11 @@ cp .env.example .env.local
 
 | Variable | Required | What it's for |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | ✅ | The code-vs-docs analysis. |
+| `DEEPSEEK_API_KEY` | ✅ | The code-vs-docs analysis. |
 | `FIRECRAWL_API_KEY` | ✅ | Crawling the docs site. [Free tier](https://firecrawl.dev): 500 credits/month. |
 | `GITHUB_TOKEN` | optional | Raises the GitHub rate limit (60 → 5,000/hr). A no-scope classic token is enough. |
 | `BLOB_READ_WRITE_TOKEN` | optional | Vercel Blob, for durable shareable report links. Auto-provisioned on Vercel. Without it, reports save to a local `.reports/` folder. |
-| `ANALYSIS_MODEL` | optional | Override the model (default `claude-opus-4-8`). |
+| `ANALYSIS_MODEL` | optional | Override the model (default `deepseek-chat`). |
 | `DRIFT_CRAWL` | optional | Set to `false` to scrape only the primary docs page (saves credits). |
 
 ### 3. Run
@@ -116,7 +116,7 @@ npm test
 ## Deploying to Vercel
 
 1. Push to GitHub and import the repo in Vercel.
-2. Add `ANTHROPIC_API_KEY` and `FIRECRAWL_API_KEY` (and optionally `GITHUB_TOKEN`) as environment variables.
+2. Add `DEEPSEEK_API_KEY` and `FIRECRAWL_API_KEY` (and optionally `GITHUB_TOKEN`) as environment variables.
 3. Add a **Blob** store from the Vercel dashboard — this auto-injects `BLOB_READ_WRITE_TOKEN` so `/report/<id>` links persist.
 4. Deploy. The analysis route runs on the Node.js runtime with a 300s max duration.
 
@@ -134,7 +134,7 @@ lib/
   github.ts                    # repo URL parsing + API-surface file selection
   extract.ts                   # TypeScript compiler AST → API symbols
   firecrawl.ts                 # docs scrape + crawl
-  analyze.ts                   # Claude structured-output analysis
+  analyze.ts                   # DeepSeek structured-output analysis
   drift.ts                     # deterministic drift score
   schema.ts                    # Zod + JSON schema for the analysis
   storage.ts                   # Vercel Blob / local-fs report persistence
@@ -148,7 +148,7 @@ tests/                         # Vitest unit tests
 
 ## Tech stack
 
-Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript · the official Anthropic SDK (`@anthropic-ai/sdk`) · Zod · Firecrawl · Vercel Blob.
+Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript · DeepSeek via the OpenAI-compatible SDK (`openai`) · Zod · Firecrawl · Vercel Blob.
 
 ---
 

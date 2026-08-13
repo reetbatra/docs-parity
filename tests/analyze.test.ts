@@ -1,24 +1,27 @@
 import { describe, it, expect } from "vitest";
-import Anthropic from "@anthropic-ai/sdk";
+import type OpenAI from "openai";
 import { analyzeDrift } from "../lib/analyze";
 
 /**
- * A minimal stub of the Anthropic client: `messages.stream(...)` returns an
- * object whose `finalMessage()` resolves to a Message with a single text block.
+ * A minimal stub of the OpenAI-compatible (DeepSeek) client:
+ * `chat.completions.stream(...)` returns an object whose
+ * `finalChatCompletion()` resolves to a ChatCompletion with one message.
  */
 function stubClient(text: string, capture?: (params: unknown) => void) {
   return {
-    messages: {
-      stream(params: unknown) {
-        capture?.(params);
-        return {
-          finalMessage: async () => ({
-            content: [{ type: "text", text }],
-          }),
-        };
+    chat: {
+      completions: {
+        stream(params: unknown) {
+          capture?.(params);
+          return {
+            finalChatCompletion: async () => ({
+              choices: [{ message: { content: text } }],
+            }),
+          };
+        },
       },
     },
-  } as unknown as Anthropic;
+  } as unknown as OpenAI;
 }
 
 const validPayload = JSON.stringify({
@@ -38,22 +41,22 @@ const validPayload = JSON.stringify({
 });
 
 describe("analyzeDrift", () => {
-  it("parses Claude's structured JSON into a validated analysis", async () => {
+  it("parses DeepSeek's JSON-mode output into a validated analysis", async () => {
     const { analysis, model } = await analyzeDrift({
       repoFullName: "acme/lib",
       docsUrl: "https://acme.dev/docs",
       apiSurface: "export function createClient(options: Options)",
       docsContent: "createClient(url)",
       client: stubClient(validPayload),
-      model: "claude-opus-4-8",
+      model: "deepseek-reasoner",
     });
 
-    expect(model).toBe("claude-opus-4-8");
+    expect(model).toBe("deepseek-reasoner");
     expect(analysis.summary).toBe("One signature drifted.");
     expect(analysis.mismatches[0].severity).toBe("high");
   });
 
-  it("sends cached, structured-output request params", async () => {
+  it("sends JSON-mode request params with the schema embedded in the system prompt", async () => {
     let captured: Record<string, unknown> = {};
     await analyzeDrift({
       repoFullName: "acme/lib",
@@ -65,18 +68,23 @@ describe("analyzeDrift", () => {
       }),
     });
 
-    // Structured outputs configured.
-    const outputConfig = captured.output_config as {
-      format?: { type?: string };
-    };
-    expect(outputConfig.format?.type).toBe("json_schema");
+    // JSON mode configured (DeepSeek/OpenAI-compatible structured output).
+    const responseFormat = captured.response_format as { type?: string };
+    expect(responseFormat.type).toBe("json_object");
 
-    // The large code & docs blocks are marked for prompt caching.
+    // The schema is spelled out in the system prompt, since JSON mode alone
+    // doesn't enforce shape.
     const messages = captured.messages as Array<{
-      content: Array<{ cache_control?: unknown }>;
+      role: string;
+      content: string;
     }>;
-    const cached = messages[0].content.filter((b) => b.cache_control);
-    expect(cached.length).toBe(2);
+    const system = messages.find((m) => m.role === "system");
+    expect(system?.content).toContain('"mismatches"');
+
+    // The code/docs blocks land in the user message.
+    const user = messages.find((m) => m.role === "user");
+    expect(user?.content).toContain("CODE API SURFACE");
+    expect(user?.content).toContain("DOCUMENTATION");
   });
 
   it("throws on non-JSON output", async () => {

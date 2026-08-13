@@ -2,9 +2,11 @@ import { z } from "zod";
 
 /**
  * The shape of a single documentation/code mismatch, and the overall analysis
- * payload Claude returns. Zod is the source of truth for runtime validation;
- * `analysisJsonSchema` is the equivalent JSON Schema we hand to the Anthropic
- * structured-outputs API (`output_config.format`).
+ * payload the model returns. Zod is the source of truth for runtime
+ * validation; `analysisJsonSchema` is the JSON Schema description we embed in
+ * the analysis prompt (see lib/analyze.ts) since DeepSeek's JSON mode
+ * guarantees valid JSON but not schema conformance — `.catch(...)` fallbacks
+ * below are what actually make malformed fields safe.
  */
 
 export const SEVERITIES = ["high", "medium", "low"] as const;
@@ -36,10 +38,11 @@ export const analysisSchema = z.object({
 export type Analysis = z.infer<typeof analysisSchema>;
 
 /**
- * JSON Schema handed to Claude via `output_config.format`. Structured outputs
- * require `additionalProperties: false` on every object and forbid numeric /
- * length constraints, so we encode confidence as a plain number and clamp it
- * ourselves after parsing.
+ * JSON Schema description embedded in the analysis system prompt (see
+ * lib/analyze.ts). DeepSeek's JSON mode only guarantees syntactically valid
+ * JSON, not schema conformance, so `additionalProperties: false` here is
+ * documentation for the model rather than an enforced constraint — confidence
+ * is still clamped to [0, 1] ourselves after parsing.
  */
 export const analysisJsonSchema = {
   type: "object",

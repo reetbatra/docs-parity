@@ -47,7 +47,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="mx-auto flex min-h-dvh max-w-4xl flex-col px-4 py-6 sm:px-6">
-          <header className="flex items-center justify-between">
+          <header className="flex items-center justify-between print:hidden">
             <Link
               href="/"
               className="flex items-center gap-2 font-semibold text-zinc-100"
@@ -80,8 +80,8 @@ export default function RootLayout({
           <main className="flex-1 py-8">{children}</main>
           <Analytics />
 
-          <footer className="border-t border-zinc-900 pt-5 text-center text-xs text-zinc-600">
-            docsParity · code vs docs, diffed by Claude in ~30 seconds.
+          <footer className="border-t border-zinc-900 pt-5 text-center text-xs text-zinc-600 print:hidden">
+            docsParity · code vs docs, diffed by AI in ~30 seconds.
           </footer>
         </div>
       </body>

@@ -34,7 +34,7 @@ export function ShareActions({ report }: { report: DriftReport }) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 print:hidden">
       <button
         type="button"
         onClick={copyLink}
@@ -48,6 +48,13 @@ export function ShareActions({ report }: { report: DriftReport }) {
         className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
       >
         {copiedReport ? "Copied ✓" : "Copy full report"}
+      </button>
+      <button
+        type="button"
+        onClick={() => window.print()}
+        className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
+      >
+        Download PDF
       </button>
       {report.mismatches.length > 0 && (
         <a

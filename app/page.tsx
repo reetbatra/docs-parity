@@ -14,7 +14,7 @@ export default async function Home({
       <section className="text-center">
         <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-xs text-zinc-400">
           <span className="size-1.5 rounded-full bg-emerald-400" />
-          Code vs docs, diffed by Claude
+          Code vs docs, diffed by AI
         </div>
         <h1 className="text-balance text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl">
           Your docs drifted from your code.
@@ -85,7 +85,7 @@ export default async function Home({
           <PipelineStep
             step="3"
             title="Crawl the docs"
-            description="Firecrawl converts the docs site to clean Markdown, stripping nav and sidebars so Claude reads only what developers read."
+            description="Firecrawl converts the docs site to clean Markdown, stripping nav and sidebars so the model reads only what developers read."
             details={[
               "Handles SPAs, JS-rendered content, and multi-page doc sites automatically",
               "Strips navigation, sidebars, and boilerplate so the signal-to-noise ratio is high",
@@ -95,10 +95,10 @@ export default async function Home({
           <PipelineStep
             step="4"
             title="Diff and score"
-            description="Claude compares the API surface to the docs and flags every mismatch. A deterministic formula scores them. No model-guessed numbers."
+            description="An LLM compares the API surface to the docs and flags every mismatch. A deterministic formula scores them. No model-guessed numbers."
             details={[
-              "Structured outputs (JSON Schema) enforce the response shape. No prompt engineering needed, no parse failures.",
-              "Prompt caching on the code and docs blocks: a re-run within 5 minutes hits cache and cuts roughly 80% of the token cost",
+              "JSON mode plus a schema spelled out in the prompt keeps the response shape consistent; Zod validates and safely falls back on any field that still drifts.",
+              "The code and docs blocks form a stable prompt prefix, so a re-run of the same repo+docs hits the model's server-side cache and cuts the token cost substantially.",
               "Drift score = sum of (severity weight x confidence factor), capped at 10. High: 3 pts, medium: 1.5, low: 0.6",
             ]}
           />
@@ -185,7 +185,7 @@ export default async function Home({
             the drift in one glance.
           </Feature>
           <Feature title="A drift score out of 10">
-            Computed from severity-weighted findings, not a number Claude
+            Computed from severity-weighted findings, not a number the model
             guessed. Same repo always scores the same.
           </Feature>
           <Feature title="Coverage score">
@@ -230,21 +230,18 @@ export default async function Home({
           </Faq>
           <Faq q="How long does it take?">
             Usually 30 to 90 seconds. GitHub fetching and Firecrawl crawling
-            each take 10 to 20 seconds. Claude varies with repo size. A
-            step-by-step progress bar keeps you oriented throughout.
+            each take 10 to 20 seconds. The analysis step varies with repo
+            size. A step-by-step progress bar keeps you oriented throughout.
           </Faq>
           <Faq q="Is the drift score reproducible?">
             Yes. The formula is sum(weight x confidence), capped at 10: high
             findings score 3, medium 1.5, low 0.6. The same inputs always
-            produce the same score. Claude never picks the number.
+            produce the same score. The model never picks the number.
           </Faq>
           <Faq q="Does re-analyzing the same repo cost more?">
-            Much less. The API surface and docs blocks are sent with{" "}
-            <span className="font-mono text-xs text-zinc-300">
-              cache_control: ephemeral
-            </span>
-            . A re-run within 5 minutes hits the cache and cuts roughly 80% of
-            the token cost.
+            Much less. The API surface and docs blocks form a stable prompt
+            prefix, so a re-run of the same repo+docs hits the model&apos;s
+            server-side cache and cuts the token cost substantially.
           </Faq>
           <Faq q="What if my language is not listed?">
             TS/JS, Python, Rust, Go, and Java are fully supported. Other

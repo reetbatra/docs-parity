@@ -6,7 +6,7 @@ export const STEP_LABELS: Record<PipelineStep, string> = {
   code: "Fetching source from GitHub",
   extract: "Extracting API surface",
   docs: "Crawling documentation",
-  analyze: "Analyzing with Claude",
+  analyze: "Analyzing with AI",
   save: "Saving report",
 };
 
